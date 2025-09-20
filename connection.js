@@ -1,17 +1,31 @@
 const { Sequelize } = require("sequelize");
+require('dotenv').config();
 
-const sequelize = new Sequelize("bd_study_app", "postgres", 'admin', {
-    host: "localhost",
-    port: 5432,
-    dialect: "postgres"
-});
+const sequelize = new Sequelize(
+    process.env.DB_NAME,
+    process.env.DB_USER,
+    process.env.DB_PASSWORD,
+    {
+        host: process.env.DB_HOST,
+        port: process.env.DB_PORT,
+        dialect: process.env.DB_DIALECT,
+        logging: process.env.NODE_ENV === 'development' ? console.log : false,
+        pool: {
+            max: 5,
+            min: 0,
+            acquire: 30000,
+            idle: 10000
+        }
+    }
+);
 
-const testConnection = function(){
+const testConnection = async function(){
     try {
-        sequelize.authenticate();
-        console.log("Conectado exitosamente");
+        await sequelize.authenticate();
+        console.log("Conectado exitosamente a la base de datos");
     } catch (error) {
-        console.log("Error de conexion", error);
+        console.error("Error de conexion a la base de datos:", error);
+        throw error;
     }
 };
 
